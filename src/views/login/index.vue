@@ -23,7 +23,7 @@
         </span>
       </el-form-item>
 
-      <el-button ref="loginForm" class="loginBtn" type="primary" style="width:100%;margin-bottom:30px;" @click="onLogin">登录</el-button>
+      <el-button ref="loginForm" class="loginBtn" type="primary" style="width:100%;margin-bottom:30px;" @click="onLogin" :loading="loading">登录</el-button>
 
       <div class="tips">
         <span style="margin-right:20px;">账号: 13800000002</span>
@@ -51,6 +51,7 @@ export default {
         mobile: '13800000002',
         password: '123456'
       },
+      loading: false,
       // 表单校验规则
       loginFormRules: {
         mobile: [
@@ -76,10 +77,14 @@ export default {
     },
     async onLogin() {
       try {
-        const res = await this.$refs.loginForm.validate()
-        console.log(res)
+        await this.$refs.loginForm.validate()
+        this.loading = true
+        await this.$store.dispatch('user/login',this.loginForm)
+        this.$router.push('/')
       } catch (error) {
         console.log(error)
+      } finally {
+        this.loading = false
       }
     }
   }
