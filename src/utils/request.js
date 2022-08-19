@@ -1,33 +1,57 @@
-// eslint-disable
 import axios from 'axios'
+import { Message } from 'element-ui'
+import store from '@/store'
+import router from '@/router'
+const timeout = 10 // 10*60*60 == 36000 s
+// 定义超时时间
+// 封装判断时间否是超时的函数
+function isCheckOut() {
+  // 现在的时间 - 获取token的时间 > 定义超时时间  注意单位是秒
+  return (Date.now() - store.getters.hrsaasTime) / 1000 > timeout
+}
 
-import {Message} from 'element-ui'
-// create an axios instance
 const service = axios.create({
-  baseURL: '/api',
-  timeout: 5000
+  baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
+  timeout: 5000 // request timeout
 })
-// 创建一个axios的实列
-// request interceptor
-service.interceptors.request.use()
-// 请求拦截器
-// response interceptor
-// 响应拦截器
-service.interceptors.response.use(response => {
-    // axios默认加了一层data
-    const { success, message, data } = response.data
-    //   要根据success的成功与否决定下面的操作
-    if (success) {
-      return data
-      
-    } else {
-      // 业务已经错误了 还能进then ? 不能 ！ 应该进catch
-      Message.error(message) // 提示错误消息
-      return Promise.reject(new Error(message))
+// 请求拦截器里添加Authorization 字段
+service.interceptors.request.use(config => {
+  console.log(config)
+  // config.headers 加一个验证的字段
+  // Authorization = Bearer+空格+token
+  if (store.getters.token) { // token存在
+    // 只有在有token的情况下 才有必要去检查时间戳是否超时
+    // console.log(isCheckOut())
+    if (isCheckOut()) { // 超时
+      store.dispatch('user/logout')
+      router.push('/login')
+      // Message.error('token接口超时')
+      return Promise.reject(new Error('token接口超时'))
     }
-  }, error => {
-    Message.error(error.message) // 提示错误信息
-    return Promise.reject(error) // 返回执行错误 让当前的执行链跳出成功 直接进入 catch
-  })
+    // 超时 调用logout
+    // 跳往 登录页
+    // Promise 爆出错误
+
+    // 没有超时 继续发出请求
+    config.headers['Authorization'] = `Bearer ${store.getters.token}`
+  }
+  return config
+}, error => {
+  return Promise.reject(error)
+})
+
+service.interceptors.response.use((response) => {
+  const { success, message, data } = response.data
+  if (success) {
+    return data
+  } else {
+    Message.error(message)
+    return Promise.reject(new Error(message))
+  }
+}, (err) => {
+  Message.error(err.message || '')
+  return Promise.reject(err)
+})
 
 export default service
+
