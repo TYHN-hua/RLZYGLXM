@@ -49,7 +49,7 @@ const createRouter = () => new Router({
   // mode: 'history', // require service support
   // scrollBehavior 字段控制切换路由滚动条的位置
   scrollBehavior: () => ({ y: 0 }),
-  routes: constantRoutes
+  routes: [...constantRoutes, ...asyncRouter]
 })
 
 const router = createRouter()
