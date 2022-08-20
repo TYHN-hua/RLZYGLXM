@@ -2,7 +2,7 @@ import axios from 'axios'
 import { Message } from 'element-ui'
 import store from '@/store'
 import router from '@/router'
-const timeout = 10 // 10*60*60 == 36000 s
+const timeout = 3600 // 10*60*60 == 36000 s
 // 定义超时时间
 // 封装判断时间否是超时的函数
 function isCheckOut() {
@@ -39,7 +39,7 @@ service.interceptors.request.use(config => {
 }, error => {
   return Promise.reject(error)
 })
-
+// 响应拦截器
 service.interceptors.response.use((response) => {
   const { success, message, data } = response.data
   if (success) {
@@ -49,7 +49,17 @@ service.interceptors.response.use((response) => {
     return Promise.reject(new Error(message))
   }
 }, (err) => {
-  Message.error(err.message || '')
+  console.log(err)
+  console.log(err.response)
+  if (err.response && err.response.data && err.response.data.code === 10002) {
+    // token失效  不处于登录状态
+    store.dispatch('user/logout')
+    router.push('/login')
+  } else {
+    Message.error(err.message || '')
+  }
+  // 这一块判断后端接口  报错是否是token问题
+  // 如果是token的问题  直接退出登录
   return Promise.reject(err)
 })
 
