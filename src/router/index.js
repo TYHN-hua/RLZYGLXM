@@ -34,13 +34,13 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/dashboard',
     children: [{
-      path: 'dashboard',
       name: 'Dashboard',
+      path: 'dashboard',
       component: () => import('@/views/dashboard/index'),
       meta: { title: '首页', icon: 'dashboard' }
     }]
   },
-  ...asyncRouter,
+  // ...asyncRouter,
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
@@ -49,6 +49,7 @@ const createRouter = () => new Router({
   // mode: 'history', // require service support
   // scrollBehavior 字段控制切换路由滚动条的位置
   scrollBehavior: () => ({ y: 0 }),
+  //  临时合并
   routes: [...constantRoutes, ...asyncRouter]
 })
 
