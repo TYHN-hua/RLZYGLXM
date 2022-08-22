@@ -7,17 +7,20 @@
     <el-tree :data="departs" :props="defaultProps" :default-expand-all="true">
       <treeTools slot-scope="{data}" :tree-node="data" />
     </el-tree>
+    <addDept :dialog-visible.sync="dialogVisible" />
   </div>
 </template>
 
 <script>
 import treeTools from './components/tree-tools.vue'
+import addDept from './components/add-dept.vue'
 import { getDepartments } from '@/api/departments'
 import { tranListToTreeData } from '@/utils/index'
 export default {
   name: 'Hrsaas1Index',
   components: {
-    treeTools
+    treeTools,
+    addDept
   },
   data() {
     return {
@@ -25,7 +28,8 @@ export default {
         label: 'name'
       },
       departs: [],
-      company: { name: '江苏传智播客教育科技股份有限公司', manager: '负责人' }
+      company: { name: '江苏传智播客教育科技股份有限公司', manager: '负责人' },
+      dialogVisible: false
     }
   },
 
