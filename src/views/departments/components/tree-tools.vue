@@ -7,14 +7,15 @@
       <el-row type="flex" justify="end">
         <el-col>{{ treeNode.manager }}</el-col>
         <el-col>
-          <el-dropdown>
+          <el-dropdown @command="handleCommand">
+            <!-- 点击下拉选项触发回调函数 -->
             <span>
               操作<i class="el-icon-arrow-down" />
             </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>添加子部门</el-dropdown-item>
-              <el-dropdown-item v-if="isRoot">编辑部门</el-dropdown-item>
-              <el-dropdown-item v-if="isRoot">删除部门</el-dropdown-item>
+              <el-dropdown-item command="add">添加子部门</el-dropdown-item>
+              <el-dropdown-item v-if="isRoot" command="edit">编辑部门</el-dropdown-item>
+              <el-dropdown-item v-if="isRoot" command="del">删除部门</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </el-col>
@@ -34,6 +35,21 @@ export default {
     isRoot: {
       type: Boolean,
       default: true
+    }
+  },
+  methods: {
+    handleCommand(type) {
+      // type 来区分点击的下拉选项
+      console.log('handleCommand', type)
+      // 点击添加子部门，弹出弹框
+      if (type === 'add') {
+        // 传递当前节点
+        this.$emit('addDept', this.treeNode)
+      } else if (type === 'edit') {
+        // 编辑部门
+      } else {
+        // 删除部门
+      }
     }
   }
 }
