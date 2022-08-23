@@ -1,6 +1,6 @@
 <template>
   <!-- 新增部门的弹层 -->
-  <el-dialog title="新增部门" :visible.sync="dialogVisible" :before-close="handleClose">
+  <el-dialog :title="showTitle" :visible.sync="dialogVisible" :before-close="handleClose">
     <!-- 表单组件  el-form   label-width设置label的宽度   -->
     <!-- 匿名插槽 -->
     <el-form ref="deptForm" label-width="120px" :model="formData" :rules="rules">
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { getDepartments, addDepartments } from '@/api/departments'
+import { getDepartments, addDepartments, updateDepartments } from '@/api/departments'
 import { getEmployeeSimple } from '@/api/employees'
 export default {
   props: {
@@ -54,8 +54,15 @@ export default {
       console.log(depts)
       console.log(value)
       // some只要满足一个条件就返回true
-      const isRepeat = depts.some(ele => ele.code === value)
-      console.log(isRepeat)
+      // //当编辑的时候，这个校验规则要把当前值过滤了才能用
+      let isRepeat = false
+      if (this.formData.id) { // 编辑情况下
+        const list = depts.filter(ele => ele.id !== this.treeNode.id)
+        isRepeat = list.some(ele => ele.code === value) // 编辑情况
+      } else {
+        isRepeat = depts.some(ele => ele.code === value) // 添加情况
+      }
+      // console.log(isRepeat)
       isRepeat ? callback(new Error(`部门编码${value}已经存在`)) : callback()
     }
     // 部门名称 同级部门中禁止出现重复部门
@@ -69,9 +76,18 @@ export default {
       // 拿到同级部门的数据
       // 确定了当前部门的ID，这个部门下的子部门的PID就可以拿到（当前部门ID=子部门的PID）
       // console.log(this.treeNode.id)
-      const list = depts.filter(ele => this.treeNode.id === ele.pid)
       // console.log(list)
-      const isRepeat = list.some(ele => ele.name === value)
+      let isRepeat = false
+      if (this.formData.id) {
+        // 所有和我同级数据
+        // 编辑情况下 改的就是自己的 要注意和自己兄弟进行对比 ==》 同级的比较
+        const list = depts.filter(ele => this.treeNode.id !== ele.pid && this.treeNode.pid === ele.pid)
+        isRepeat = list.some(ele => ele.name === value)
+      } else {
+        // 新增情况下
+        const list = depts.filter(ele => this.treeNode.id === ele.pid)
+        isRepeat = list.some(ele => ele.name === value)
+      }
       // 第一级部门的pid为"",所以在总的部门里面手动加一个id为空，才能进行一级部门校验
       isRepeat ? callback(new Error(`部门名称${value}在同级部门已经存在`)) : callback()
     }
@@ -102,6 +118,11 @@ export default {
       peoples: []
     }
   },
+  computed: {
+    showTitle() {
+      return this.formData.id ? '编辑部门' : '新增子部门'
+    }
+  },
   methods: {
     handleClose() {
       // 触发update:dialogVisible去关闭弹窗
@@ -124,9 +145,14 @@ export default {
         console.log(vali)
         if (vali) {
           // 表单校验通过
-          // 新增部门接口
-          await addDepartments({ ...this.formData, pid: this.treeNode.id })
-          this.$message.success('部门新增成功')
+          if (this.formData.id) {
+            // 编辑修改部门接口
+            await updateDepartments(this.formData)
+          } else {
+            // 新增部门接口
+            await addDepartments({ ...this.formData, pid: this.treeNode.id })
+          }
+          this.$message.success(`部门${this.formData.id ? '修改' : '新增'}成功`)
           this.$emit('refreshDepts')
           this.handleClose()
         }

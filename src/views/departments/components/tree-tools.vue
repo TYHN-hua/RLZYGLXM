@@ -25,6 +25,7 @@
 </template>
 
 <script>
+import { delDepartments } from '@/api/departments'
 export default {
   props: {
     //   定义一个props属性
@@ -47,8 +48,21 @@ export default {
         this.$emit('addDept', this.treeNode)
       } else if (type === 'edit') {
         // 编辑部门
+        this.$emit('editDept', this.treeNode)
       } else {
         // 删除部门
+        // 调用删除接口
+        // 二次确认
+        this.$confirm('确认删除该部门吗？', '提示', {
+          type: 'warning'
+        }).then(res => {
+          // 点击确认对的时候进入
+          // 删除数据
+          return delDepartments(this.treeNode.id)
+        }).then(res => {
+          this.$emit('refreshDepts') // 触发自定义事件
+          this.$message.success('删除部门成功')
+        })
       }
     }
   }
