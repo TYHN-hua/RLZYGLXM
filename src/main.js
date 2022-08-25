@@ -15,11 +15,19 @@ import '@/icons' // icon
 import '@/permission' // permission control
 
 import * as directives from '@/directives'
-
+import * as fiflters from '@/filters'
+// 全局自定义指令
 Object.keys(directives).forEach(ele => {
   Vue.directive(ele, directives[ele])
 })
+// 全局注册组件
+import components from '@/components'
+Vue.use(components)
 Vue.use(ElementUI)
+
+Object.keys(fiflters).forEach(key => {
+  Vue.filter(key, fiflters[key])
+})
 
 Vue.config.productionTip = false
 
