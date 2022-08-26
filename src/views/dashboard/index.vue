@@ -1,6 +1,7 @@
 <template>
   <div class="dashboard-container">
     <div class="dashboard-text">name: {{ name }}</div>
+    <UploadExcel />
   </div>
 </template>
 
@@ -33,8 +34,17 @@ export default {
     ...mapGetters([
       'name'
     ])
+  },
+  methods: {
+    beforeUpload(file) {
+      // file.size单位为b
+      if (file.size > 1024) {
+        this.$message.error('文件大小不可以超过2kb')
+        return false
+      }
+      return true
+    }
   }
-
 }
 </script>
 

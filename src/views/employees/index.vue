@@ -3,7 +3,7 @@
     <PageTools>
       <span slot="before">共计{{ total }}条记录</span>
       <template slot="after">
-        <el-button size="small" type="warning">导入</el-button>
+        <el-button size="small" type="warning" @click="$router.push('/import?type=user')">导入</el-button>
         <el-button size="small" type="danger">导出</el-button>
         <el-button size="small" type="primary" @click="add">新增员工</el-button>
         <add-employee :visible-dialog.sync="visibleDialog" @refresh="getEmployeeList" />
