@@ -1,7 +1,7 @@
 <template>
   <el-dialog title="新增员工" :visible="visibleDialog" :before-close="handleClose">
     <!-- 表单 -->
-    <el-form :model="formData" :rules="rules" label-width="120px">
+    <el-form ref="addEmployeeDialog" :model="formData" :rules="rules" label-width="120px">
       <el-form-item label="姓名" prop="username">
         <el-input v-model="formData.username" style="width:80%" placeholder="请输入姓名" />
       </el-form-item>
@@ -39,7 +39,7 @@
       <el-row type="flex" justify="center">
         <el-col :span="6">
           <el-button size="small" @click="handleClose">取消</el-button>
-          <el-button type="primary" size="small">确定</el-button>
+          <el-button type="primary" size="small" @click="submitEmploy">确定</el-button>
         </el-col>
       </el-row>
     </template>
@@ -50,6 +50,7 @@
 import EmployeeEnum from '@/api/constant/employees'
 import { getDepartments } from '@/api/departments'
 import { tranListToTreeData } from '@/utils'
+import { addEmployee } from '@/api/employees'
 export default {
   props: {
     visibleDialog: {
@@ -66,6 +67,7 @@ export default {
       showTree: false, // 控制树形的显示或者隐藏
       loading: false,
       hireType: EmployeeEnum.hireType,
+      loadingBtn: false,
       // 表单校验
       // 用户名必填，username，长度为1-4位
       // 手机号必填，mobile，需满足 正则表达式 /^1[3-9]\d{9}$/
@@ -100,6 +102,8 @@ export default {
   methods: {
     handleClose() {
       this.$emit('update:visibleDialog', false)
+      this.$refs.addEmployeeDialog.resetFields() // 对整个表单结果进行校验
+      this.showTree = false
       this.formData = {
         username: '',
         mobile: '',
@@ -109,7 +113,6 @@ export default {
         timeOfEntry: '',
         correctionTime: ''
       }
-      // this.$refs.addEmployeeForm.resetFields() // 对整个表单结果进行校验
     },
     async getDepartments() {
       this.showTree = true
@@ -121,6 +124,21 @@ export default {
     handleNodeClick(node) {
       this.formData.departmentName = node.name
       this.showTree = false
+    },
+    async submitEmploy() {
+      try {
+        await this.$refs.addEmployeeDialog.validate() // 判断验证是否通过
+        // 调用新增接口
+        this.loadingBtn = true
+        await addEmployee(this.formData)
+        this.$message.success('新增员工成功')
+        this.$emit('refresh')
+        this.handleClose()
+      } catch (error) {
+        console.log(error)
+      } finally {
+        this.loadingBtn = false
+      }
     }
   }
 }
