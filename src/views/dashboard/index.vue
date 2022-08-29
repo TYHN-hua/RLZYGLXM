@@ -2,6 +2,10 @@
   <div class="dashboard-container">
     <div class="dashboard-text">name: {{ name }}</div>
     <UploadExcel />
+    <a
+      href="http://localhost:8888/static/img/login-logo.758b34e9.png"
+      download="login-logo.758b34e9.png"
+    >点击</a>
   </div>
 </template>
 

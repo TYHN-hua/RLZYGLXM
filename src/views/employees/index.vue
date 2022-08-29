@@ -4,7 +4,7 @@
       <span slot="before">共计{{ total }}条记录</span>
       <template slot="after">
         <el-button size="small" type="warning" @click="$router.push('/import?type=user')">导入</el-button>
-        <el-button size="small" type="danger">导出</el-button>
+        <el-button size="small" type="danger" @click="exportData">导出</el-button>
         <el-button size="small" type="primary" @click="add">新增员工</el-button>
         <add-employee :visible-dialog.sync="visibleDialog" @refresh="getEmployeeList" />
       </template>
@@ -31,7 +31,7 @@
         </el-table-column>
         <el-table-column label="操作" fixed="right" width="280">
           <template slot-scope="{row}">
-            <el-button type="text" size="small">查看</el-button>
+            <el-button type="text" size="small" @click="$router.push(`/employees/detail/${row.id}`)">查看</el-button>
             <el-button type="text" size="small">转正</el-button>
             <el-button type="text" size="small">调岗</el-button>
             <el-button type="text" size="small">离职</el-button>
@@ -62,6 +62,7 @@
 import { getEmployeeList, delEmployee } from '@/api/employees'
 import EmployeeEnum from '@/api/constant/employees'
 import addEmployee from './components/add-employee'
+import { formatDate } from '@/filters'
 export default {
   name: 'Hrsaas1Index',
   components: {
@@ -123,6 +124,117 @@ export default {
       } catch (error) {
         console.log(error)
       }
+    },
+    async exportData() {
+    //     //  做操作
+    //     // 表头对应关系
+    //     const headers = {
+    //       '姓名': 'username',
+    //       '手机号': 'mobile',
+    //       '入职日期': 'timeOfEntry',
+    //       '聘用形式': 'formOfEmployment',
+    //       '转正日期': 'correctionTime',
+    //       '工号': 'workNumber',
+    //       '部门': 'departmentName'
+    //     }
+    //     console.log(this.fromJson(headers, rows))
+    //     // 1、获取需要导出的数据
+    //     const { rows } = await getEmployeeList({ page: 1, size: this.page.total })
+    //     console.log(rows)
+    //     Object.keys(headers) //
+    //     // const arr1 = rows.map(ele => { //
+    //     //   return Object.keys(headers).map(
+    //     //     // ['姓名','手机号','入职日期',...]
+    //     //     key => { // 是汉字
+    //     //       return ele[headers[key]]
+    //     //     }
+    //     //   )
+    //     //   // ele  {  correctionTime: "2019/9/11",mobile: "13041130789",timeOfEntry: "2019/3/11",username: "高小山",workNumber: "20099"}
+    //     // })
+    //     // console.log(arr1)
+    //     fromJson(headers, rows) {
+    //       const arr1 = rows.map(ele => { //
+    //       return Object.values(headers).map(
+    //         // ['姓名','手机号','入职日期',...]
+    //         key => { // 是汉字
+    //           return ele[key]
+    //         }
+    //       )
+    //       // ele  {  correctionTime: "2019/9/11",mobile: "13041130789",timeOfEntry: "2019/3/11",username: "高小山",workNumber: "20099"}
+    //     })
+    //     }
+    //     return arr1
+    //     console.log(arr1)
+      //  做操作
+      // 表头对应关系
+      const headers = {
+        '姓名': 'username',
+        '手机号': 'mobile',
+        '入职日期': 'timeOfEntry',
+        '聘用形式': 'formOfEmployment',
+        '转正日期': 'correctionTime',
+        '工号': 'workNumber',
+        '部门': 'departmentName'
+      }
+      // 懒加载
+      import('@/vendor/Export2Excel').then(async excel => {
+        // 1、获取需要导出的数据
+        const { rows } = await getEmployeeList({ page: 1, size: this.page.total })
+        // 2、调用自己封装的方法进行数据的转化
+        const data = this.fromJson(headers, rows)
+        // 将后端放回的数据 转换成 到出excel写入的数据
+        // [{correctionTime: "2018-11-30", departmentName: "总裁办",formOfEmployment: "1",mobile: "13800000002",timeOfEntry: "2018-11-02",username: "管理员"}]
+        // [['张三', '13800000002', '2018-11-02', '1', '2018-11-30', ....]]
+
+        excel.export_json_to_excel({
+          header: Object.keys(headers), // 表头数组 -> ['姓名', '手机号', '入职日期', '聘用形式', ....]
+          data, // [['13399999', '张三', '2020-2020-2020', '2020', '79119'],[],[],[],[],[],[]]
+          filename: '员工信息表',
+          autoWidth: true,
+          bookType: 'xlsx'
+        })
+        // 获取所有的数据
+
+        // excel.export_json_to_excel({
+        //   header: ['姓名', '薪资'],
+        //   data: [['张三', 12000], ['李四', 5000]],
+        //   filename: '员工薪资表',
+        //   autoWidth: true,
+        //   bookType: 'csv'
+        // })
+      })
+    },
+    // 该方法负责将数组转化成二维数组
+    fromJson(headers, rows) {
+      // rows的结构 ->
+      // rows: [{username: '234234', mobile: '1398888888', 'workNumber': 123123}, ....]
+      // headers的结构 ['姓名', '手机号', '入职日期', ....] -> 配置项里面生效的数据结构
+      // rows的预期结果 -> result数组的每一项要和和headers一一对应
+      // result -> [['张三', '138888888', '2020-10-01', ...], ['张三', '138888888', '2020-10-01', ...]]
+      const result = rows.map(item => {
+        // item 为对象 ->
+        // 替换成数组即可 ->
+        // 数组的结构要和headers对应起来 ->
+        return Object.keys(headers).map(key => {
+          // key -> 中文的key
+          // 预期 -> 返回当前项的值
+          // 值在哪？-> item为真实的数据对象 -> 取到正确的值返回即可
+          // 返回值的思路
+          // 1. 数据里面的key是中文还是英文？ -> 英文
+          // 2. headers里面取到中文key对应的英文key
+          // 3. 直接去数据对象里面取数据
+          if (headers[key] === 'timeOfEntry' || headers[key] === 'correctionTime') {
+          // 格式化日期 -> 已经定义过过滤器直接使用即可
+            return formatDate(item[headers[key]])
+          } else if (headers[key] === 'formOfEmployment') {
+          // 需要引入EmployeeEnum常量进行处理
+            const obj = EmployeeEnum.hireType.find(obj => obj.id === item[headers[key]])
+            return obj ? obj.value : '未知'
+          }
+          return item[headers[key]]
+        })
+      })
+      return result
     }
   }
 }
