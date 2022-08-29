@@ -14,6 +14,17 @@
       <el-table v-loading="loading" border :data="list">
         <el-table-column label="序号" sortable="" type="index" />
         <el-table-column label="姓名" sortable="" prop="username" />
+        <el-table-column label="头像">
+          <template slot-scope="{row}">
+            <img
+              v-imgerror="require('@/assets/common/bigUserHeader.png')"
+              :src="row.staffPhoto"
+              alt=""
+              style="border-radius: 50%; width: 100px; height: 100px; padding:10px;"
+              @click="showErCodeDialog(row.staffPhoto)"
+            >
+          </template>
+        </el-table-column>
         <el-table-column label="工号" sortable="" prop="workNumber" />
         <el-table-column label="聘用形式" sortable="" prop="formOfEmployment" :formatter="formatterFn" />
         <el-table-column label="部门" sortable="" prop="departmentName" />
@@ -55,6 +66,11 @@
         />
       </el-row>
     </el-card>
+    <el-dialog title="头像二维码" :visible.sync="ercodeDialog" custom-class="canvaseq">
+      <el-row type="flex" justify="center">
+        <canvas id="canvas" />
+      </el-row>
+    </el-dialog>
   </div>
 </template>
 
@@ -63,6 +79,7 @@ import { getEmployeeList, delEmployee } from '@/api/employees'
 import EmployeeEnum from '@/api/constant/employees'
 import addEmployee from './components/add-employee'
 import { formatDate } from '@/filters'
+import QrCode from 'qrcode'
 export default {
   name: 'Hrsaas1Index',
   components: {
@@ -77,7 +94,8 @@ export default {
       list: [],
       total: 0,
       visibleDialog: false,
-      loading: false
+      loading: false,
+      ercodeDialog: false
     }
   },
 
@@ -235,11 +253,20 @@ export default {
         })
       })
       return result
+    },
+    async showErCodeDialog(staffPhoto) {
+      if (!staffPhoto) return this.$message.error('该用户还未设置头像')
+      this.ercodeDialog = true
+      await this.$nextTick()
+      const dom = document.querySelector('#canvas')
+      QrCode.toCanvas(dom, staffPhoto)
     }
   }
 }
 </script>
 
-<style lang='scss'>
-
+<style lang="scss">
+.canvaseq .el-dialog__body {
+  text-align: center;
+}
 </style>

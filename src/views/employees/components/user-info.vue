@@ -1,5 +1,12 @@
 <template>
   <div class="user-info">
+    <el-row type="flex" justify="end">
+      <el-tooltip content="打印个人基本信息">
+        <router-link :to="`/employees/print/${userId}?type=personal`">
+          <i class="el-icon-printer" />
+        </router-link>
+      </el-tooltip>
+    </el-row>
     <!-- 个人信息 -->
     <el-form label-width="220px">
       <!-- 工号 入职时间 -->
@@ -58,6 +65,7 @@
         <el-col :span="12">
           <el-form-item label="员工头像">
             <!-- 放置上传图片 -->
+            <UploadImg ref="employeesHeader" @onSuccess="headerSuccess" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -86,9 +94,9 @@
         </el-form-item>
         <!-- 个人头像 -->
         <!-- 员工照片 -->
-
         <el-form-item label="员工照片">
           <!-- 放置上传图片 -->
+          <UploadImg ref="employeesPic" @onSuccess="PicSuccess" />
         </el-form-item>
         <el-form-item label="国家/地区">
           <el-select v-model="formData.nationalArea" class="inputW2">
@@ -284,7 +292,11 @@
 <script>
 import EmployeeEnum from '@/api/constant/employees'
 import { getPersonalDetail, updatePersonal, saveUserDetailById } from '@/api/employees'
+import UploadImg from '@/components/UploadImg/index.vue'
 export default {
+  components: {
+    UploadImg
+  },
   data() {
     return {
       userId: this.$route.params.id,
@@ -361,15 +373,33 @@ export default {
   methods: {
     async getPersonalDetail() {
       this.formData = await getPersonalDetail(this.userId)
+      this.$refs.employeesPic.fileList = [{ url: this.formData.staffPhoto }]
     },
     async savePersonal() {
+      if (this.$refs.employeesPic.loading) {
+        return this.$message.error('图片上传中')
+      }
       await updatePersonal(this.formData)
       this.$message.success('更新成功')
     },
     async saveUser() {
     //  调用父组件
+      if (this.$refs.employeesHeader.loading) {
+        return this.$message.error('图片上传中')
+      }
       await saveUserDetailById(this.userInfo)
       this.$message.success('更新成功')
+    },
+    setImageUrl(staffPhoto) {
+      this.$refs.employeesHeader.fileList = [{
+        url: staffPhoto
+      }]
+    },
+    headerSuccess({ url }) {
+      this.userInfo.staffPhoto = url
+    },
+    PicSuccess({ url }) {
+      this.formData.staffPhoto = url
     }
   }
 }

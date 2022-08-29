@@ -6,11 +6,13 @@
       href="http://localhost:8888/static/img/login-logo.758b34e9.png"
       download="login-logo.758b34e9.png"
     >点击</a>
+    <UploadImg :befor-upload-check="beforeUploadCheck" @onSuccess="handleSuccess" />
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import UploadImg from '@/components/UploadImg/index.vue'
 
 export default {
   name: 'Dashboard',
@@ -29,6 +31,9 @@ export default {
   //     }
   //   }
   // },
+  components: {
+    UploadImg
+  },
   data() {
     return {
       info: {}
@@ -40,13 +45,16 @@ export default {
     ])
   },
   methods: {
-    beforeUpload(file) {
+    beforeUploadCheck(file) {
       // file.size单位为b
       if (file.size > 1024) {
         this.$message.error('文件大小不可以超过2kb')
         return false
       }
       return true
+    },
+    handleSuccess(url) {
+      console.log(url)
     }
   }
 }

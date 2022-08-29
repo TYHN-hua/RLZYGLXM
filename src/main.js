@@ -16,6 +16,9 @@ import '@/permission' // permission control
 
 import * as directives from '@/directives'
 import * as fiflters from '@/filters'
+
+import Print from 'vue-print-nb'
+Vue.use(Print)
 // 全局自定义指令
 Object.keys(directives).forEach(ele => {
   Vue.directive(ele, directives[ele])
