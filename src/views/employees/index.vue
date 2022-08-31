@@ -46,7 +46,7 @@
             <el-button type="text" size="small">转正</el-button>
             <el-button type="text" size="small">调岗</el-button>
             <el-button type="text" size="small">离职</el-button>
-            <el-button type="text" size="small">角色</el-button>
+            <el-button type="text" size="small" @click="asRole(row.id)">角色</el-button>
             <el-button type="text" size="small" @click="del(row.id)">删除</el-button>
           </template>
         </el-table-column>
@@ -71,6 +71,8 @@
         <canvas id="canvas" />
       </el-row>
     </el-dialog>
+    <!-- v-model 用在一个组件上 会默认自动被解析成 名为 value 的属性  名为 input 的事件 -->
+    <assign-role ref="assignRole" v-model="assignRoleDialog" :user-id="currentUserId" />
   </div>
 </template>
 
@@ -78,12 +80,14 @@
 import { getEmployeeList, delEmployee } from '@/api/employees'
 import EmployeeEnum from '@/api/constant/employees'
 import addEmployee from './components/add-employee'
+import assignRole from './components/assign-role.vue'
 import { formatDate } from '@/filters'
 import QrCode from 'qrcode'
 export default {
   name: 'Hrsaas1Index',
   components: {
-    addEmployee
+    addEmployee,
+    assignRole
   },
   data() {
     return {
@@ -95,7 +99,9 @@ export default {
       total: 0,
       visibleDialog: false,
       loading: false,
-      ercodeDialog: false
+      ercodeDialog: false,
+      assignRoleDialog: false,
+      currentUserId: ''
     }
   },
 
@@ -260,6 +266,11 @@ export default {
       await this.$nextTick()
       const dom = document.querySelector('#canvas')
       QrCode.toCanvas(dom, staffPhoto)
+    },
+    async asRole(id) {
+      this.currentUserId = id
+      await this.$refs.assignRole.getRoleList()
+      this.assignRoleDialog = true
     }
   }
 }
