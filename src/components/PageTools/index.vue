@@ -2,7 +2,7 @@
   <el-card class="page-tools">
     <el-row type="flex" justify="space-between" align="middle">
       <el-col>
-        <div :class="`before ${type}`">
+        <div v-if="showBefore" :class="`before ${type}`">
           <i :class="`el-icon-${type}`" />
           <!-- 定义前面得插槽 -->
           <slot name="before" />
@@ -30,6 +30,10 @@ export default {
         }
         return false
       }
+    },
+    showBefore: {
+      type: Boolean,
+      default: true
     }
   }
 }
