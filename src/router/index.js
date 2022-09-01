@@ -14,7 +14,7 @@ import salarysRouter from './modules/salarys'
 import settingRouter from './modules/setting'
 import socialRouter from './modules/social'
 
-const asyncRouter = [approvalsRouter, attendancesRouter, departmentsRouter, employeesRouter, permissionRouter, salarysRouter, settingRouter, socialRouter]
+export const asyncRoutes = [approvalsRouter, attendancesRouter, departmentsRouter, employeesRouter, permissionRouter, salarysRouter, settingRouter, socialRouter]
 
 export const constantRoutes = [
   {
@@ -49,10 +49,10 @@ export const constantRoutes = [
       component: () => import('@/views/dashboard/index'),
       meta: { title: '首页', icon: 'dashboard' }
     }]
-  },
+  }
   // ...asyncRouter,
   // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+  // { path: '*', redirect: '/404', hidden: true }
 ]
 
 const createRouter = () => new Router({
@@ -60,7 +60,9 @@ const createRouter = () => new Router({
   // scrollBehavior 字段控制切换路由滚动条的位置
   scrollBehavior: () => ({ y: 0 }),
   //  临时合并
-  routes: [...constantRoutes, ...asyncRouter]
+  // routes: [...constantRoutes, ...asyncRouter]
+  routes: [...constantRoutes]
+
 })
 
 const router = createRouter()

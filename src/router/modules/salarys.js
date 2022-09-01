@@ -4,6 +4,7 @@ export default {
   // 路由规则
   path: '/salarys', // 路由地址
   component: Layout,
+  meta: { id: 'salarys' },
   children: [{
     name: 'salarys', // 给模块的一级路由加一个name属性
     // 二级路由path什么都不用写的时候 此时它表示二级路由的默认路由

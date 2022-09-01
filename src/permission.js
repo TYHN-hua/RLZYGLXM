@@ -21,7 +21,9 @@ router.beforeEach(async(to, from, next) => {
     // userinfo userId
     // !store.state.user.userInfo.userId
     if (!store.getters.userId) {
-      await store.dispatch('user/getUserInfo')
+      const { roles: { menus }} = await store.dispatch('user/getUserInfo')
+      store.dispatch('permisson/filterRoutes', menus)
+      next(to.path)
     }
     // 当去往页面是不是 登录页  去首页  否则 直接放行
     if (to.path === '/login') {
