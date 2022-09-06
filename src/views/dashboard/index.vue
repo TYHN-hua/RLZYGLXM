@@ -1,6 +1,8 @@
 <template>
   <div class="dashboard-container">
     <!-- 头部内容 -->
+    <!-- <h1>{{ $t('hello' )}}</h1>
+    <h1>{{ $t('route.ment' ) }}</h1> -->
     <el-card class="header-card">
       <div>
         <div class="fl headL">
@@ -73,10 +75,10 @@
             <span>流程申请</span>
           </div>
           <div class="sideNav">
-            <el-button class="sideBtn">加班离职</el-button>
+            <el-button class="sideBtn" @click="showDialog = true">加班离职</el-button>
             <el-button class="sideBtn">请假调休</el-button>
-            <el-button class="sideBtn">审批列表</el-button>
-            <el-button class="sideBtn">我的信息</el-button>
+            <el-button class="sideBtn" @click="$router.push('/user/approvals')">审批列表</el-button>
+            <el-button class="sideBtn" @click="$router.push('/user/users')">我的信息</el-button>
           </div>
         </el-card>
 
@@ -118,6 +120,7 @@
         </el-card>
       </el-col>
     </el-row>
+    <addWork :show-dialog.sync="showDialog" />
   </div>
 </template>
 
@@ -125,11 +128,13 @@
 import { mapGetters } from 'vuex'
 import workCalendar from './components/work-calendar.vue'
 import radar from './components/radar.vue'
+import addWork from './components/addwork.vue'
 export default {
   name: 'Dashboard',
   components: {
     workCalendar,
-    radar
+    radar,
+    addWork
   },
   // direactives 局部注册自定义指令
   // directives: {
@@ -148,7 +153,8 @@ export default {
   // }
   data() {
     return {
-      info: {}
+      info: {},
+      showDialog: false
     }
   },
   computed: {

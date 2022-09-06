@@ -20,6 +20,7 @@ import * as fiflters from '@/filters'
 import Print from 'vue-print-nb'
 Vue.use(Print)
 import myMixin from '@/mixin/checkPermission'
+import i18n from '@/lang/index'
 // 全局自定义指令
 Object.keys(directives).forEach(ele => {
   Vue.directive(ele, directives[ele])
@@ -29,7 +30,9 @@ import components from '@/components'
 Vue.use(components)
 Vue.use(ElementUI)
 Vue.mixin(myMixin)
-
+Vue.use(ElementUI, {
+  i18n: (key, value) => i18n.t(key, value)
+})
 Object.keys(fiflters).forEach(key => {
   Vue.filter(key, fiflters[key])
 })
@@ -40,5 +43,6 @@ new Vue({
   el: '#app',
   router,
   store,
+  i18n,
   render: h => h(App)
 })

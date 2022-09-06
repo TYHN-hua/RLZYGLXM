@@ -9,6 +9,8 @@
     </div>
 
     <div class="right-menu">
+      <Lang style="margin-right: 8px;" />
+      <ScreenFull class="right-menu-item" />
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
           <img
@@ -38,9 +40,13 @@ import { mapGetters } from 'vuex'
 // import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 import defaultImg from '@/assets/common/head.jpg'
+import ScreenFull from '@/components/ScreenFull/index.vue'
+import Lang from '@/components/lang/index'
 export default {
   components: {
-    Hamburger
+    Hamburger,
+    ScreenFull,
+    Lang
   },
   data() {
     return {
@@ -94,6 +100,7 @@ export default {
   }
 
   .right-menu {
+    display: flex;
     float: right;
     height: 100%;
     line-height: 50px;
@@ -196,5 +203,8 @@ export default {
         }
       }
     }
+    .right-menu-item {
+    vertical-align: middle;
+  }
 }
 </style>
